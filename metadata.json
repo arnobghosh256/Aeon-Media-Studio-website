@@ -1,0 +1,6 @@
+{
+  "name": "AEON MEDIA — Luxury Hospitality Creative Studio",
+  "description": "Hospitality-focused content and brand storytelling studio crafting considered narratives for luxury hotels, resorts, villas, and exceptional destinations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
