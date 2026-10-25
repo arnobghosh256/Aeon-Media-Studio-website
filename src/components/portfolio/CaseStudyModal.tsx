@@ -42,11 +42,18 @@ export const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
       {/* Modal Container */}
       <div className="relative w-full max-w-4xl bg-[#F7F4EE] border border-[#22221F]/15 shadow-2xl z-10 max-h-[92vh] overflow-y-auto focus:outline-none">
         {/* Sticky Header with Close */}
-        <div className="sticky top-0 z-20 flex items-center justify-between px-6 sm:px-10 py-5 bg-[#F7F4EE]/95 backdrop-blur-md border-b border-[#22221F]/10">
+        <div className="sticky top-0 z-20 flex items-center justify-between px-6 sm:px-10 py-4 bg-[#F7F4EE]/95 backdrop-blur-md border-b border-[#22221F]/10">
           <div className="flex items-center gap-3 text-xs font-sans text-[#22221F]/60">
-            <span>{project.category}</span>
+            <div className="w-6 h-6 rounded-full overflow-hidden border border-[#B6A17E]/60 ring-1 ring-[#22221F]/10 bg-[#161614] shrink-0">
+              <img
+                src="/assets/aistudio/IMG_20261003_095753_7e6246d0.png"
+                alt="AEON MEDIA"
+                className="w-full h-full object-cover object-top scale-130"
+              />
+            </div>
+            <span className="font-serif font-medium text-[#22221F] tracking-wider uppercase text-[11px]">AEON MEDIA</span>
             <span aria-hidden="true">·</span>
-            <span>{project.location}</span>
+            <span>{project.category}</span>
             <span aria-hidden="true">·</span>
             <span className="text-[#B6A17E] font-medium">
               {project.isConceptual ? 'Conceptual Monograph' : 'Client Commission'}

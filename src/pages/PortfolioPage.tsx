@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowUpRight, Info } from 'lucide-react';
 import { PageContent, PortfolioItem } from '../types/index.ts';
+import { BrandLogo, LOGO_ASSET_PATH } from '../components/common/BrandLogo.tsx';
 
 interface PortfolioPageProps {
   pageContent?: PageContent;
@@ -32,8 +33,17 @@ export const PortfolioPage: React.FC<PortfolioPageProps> = ({
       {/* Header Banner */}
       <section className="pt-12 pb-16 lg:pt-16 lg:pb-24 border-b border-[#22221F]/10 bg-[#F7F4EE]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 space-y-6">
-          <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
-            Monograph Archive
+          <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
+            <div className="w-6 h-6 rounded-full overflow-hidden border border-[#B6A17E]/60 ring-1 ring-[#22221F]/10 bg-[#161614] shrink-0">
+              <img
+                src={LOGO_ASSET_PATH}
+                alt="AEON MEDIA Insignia"
+                className="w-full h-full object-cover object-top scale-130"
+              />
+            </div>
+            <span>Monograph Archive</span>
+            <span aria-hidden="true">·</span>
+            <span>AEON MEDIA Curated Folio</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-[#22221F] tracking-tight max-w-4xl text-balance">
             {heroHeading}

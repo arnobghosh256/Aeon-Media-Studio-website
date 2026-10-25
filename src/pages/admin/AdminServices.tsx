@@ -101,15 +101,18 @@ export const AdminServices: React.FC<AdminServicesProps> = ({
     }
   };
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete service '${title}'?`)) return;
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+
+  const confirmDeleteService = async () => {
+    if (!serviceToDelete) return;
 
     setLoading(true);
     try {
-      await api.deleteService(id);
-      const updatedList = services.filter((s) => s.id !== id);
+      await api.deleteService(serviceToDelete.id);
+      const updatedList = services.filter((s) => s.id !== serviceToDelete.id);
       onServicesUpdated(updatedList);
-      setSuccess(`Service '${title}' removed.`);
+      setSuccess(`Service '${serviceToDelete.title}' removed.`);
+      setServiceToDelete(null);
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.message || 'Delete failed.');
@@ -324,8 +327,9 @@ export const AdminServices: React.FC<AdminServicesProps> = ({
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(serv.id, serv.title)}
-                  className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-200 transition-colors"
+                  type="button"
+                  onClick={() => setServiceToDelete(serv)}
+                  className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-200 transition-colors cursor-pointer"
                   title="Delete service"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -335,6 +339,35 @@ export const AdminServices: React.FC<AdminServicesProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {serviceToDelete && (
+        <div className="fixed inset-0 z-50 bg-[#22221F]/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#22221F]/20 p-6 max-w-md w-full space-y-4">
+            <h3 className="text-lg font-serif text-[#22221F]">Confirm Service Deletion</h3>
+            <p className="text-xs font-sans text-[#22221F]/70">
+              Are you sure you want to delete <strong>{serviceToDelete.title}</strong>? This action will remove it from the studio offerings.
+            </p>
+            <div className="flex justify-end gap-3 pt-2 border-t border-[#22221F]/10">
+              <button
+                type="button"
+                onClick={() => setServiceToDelete(null)}
+                className="px-4 py-2 text-xs font-sans text-[#22221F]/70 hover:text-[#22221F]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={confirmDeleteService}
+                className="px-4 py-2 text-xs font-sans uppercase font-semibold text-white bg-red-700 hover:bg-red-800 disabled:opacity-50"
+              >
+                {loading ? 'Deleting...' : 'Delete Service'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -20,6 +20,7 @@ import { AdminPortfolio } from './AdminPortfolio.tsx';
 import { AdminInquiries } from './AdminInquiries.tsx';
 import { AdminBrandAndSEOSettings } from './AdminBrandAndSEOSettings.tsx';
 import { AdminSiteSettings } from './AdminSiteSettings.tsx';
+import { BrandLogo } from '../../components/common/BrandLogo.tsx';
 import { 
   AdminUser, 
   Inquiry, 
@@ -148,13 +149,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       {/* Sidebar for Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-[#22221F] text-[#F7F4EE] border-r border-[#343430] shrink-0 min-h-screen">
         {/* Brand Header */}
-        <div className="p-6 border-b border-[#343430] space-y-1">
-          <div className="text-[10px] uppercase tracking-widest text-[#B6A17E] font-semibold">
-            Central Studio Console
-          </div>
-          <div className="text-xl font-serif text-[#F7F4EE] tracking-tight">
-            AEON MEDIA
-          </div>
+        <div className="p-5 border-b border-[#343430]">
+          <BrandLogo variant="admin" onClick={onReturnToSite} className="cursor-pointer hover:opacity-90 transition-opacity" />
         </div>
 
         {/* Navigation List in exact required order */}
@@ -257,7 +253,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         {mobileSidebarOpen && (
           <div className="fixed inset-0 z-40 bg-[#22221F]/90 backdrop-blur-sm md:hidden flex flex-col p-6 animate-in fade-in duration-200">
             <div className="flex items-center justify-between pb-6 border-b border-white/10">
-              <span className="font-serif text-lg text-white">AEON MEDIA Dashboard</span>
+              <BrandLogo variant="admin" onClick={onReturnToSite} />
               <button
                 onClick={() => setMobileSidebarOpen(false)}
                 className="p-1 text-white hover:text-[#B6A17E]"

@@ -59,6 +59,31 @@ export const AdminBrandSettings: React.FC<AdminBrandSettingsProps> = ({
       )}
 
       <form onSubmit={handleSubmit} className="bg-white border border-[#22221F]/10 p-6 sm:p-10 space-y-6">
+        {/* Official Registered Studio Insignia Asset Card */}
+        <div className="p-5 bg-[#22221F] text-[#F7F4EE] flex flex-col sm:flex-row items-center sm:items-start gap-5 border border-[#B6A17E]/40">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden border border-[#B6A17E]/50 bg-[#141412] shrink-0 p-1 shadow-xl">
+            <img
+              src="/assets/aistudio/IMG_20261003_095753_7e6246d0.png"
+              alt="Official AEON MEDIA Logo"
+              className="w-full h-full object-cover object-top scale-115"
+            />
+          </div>
+          <div className="space-y-1.5 text-center sm:text-left flex-1">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#B6A17E]/20 text-[#B6A17E] text-[10px] uppercase tracking-widest font-sans font-medium">
+              Registered Trademark Mark
+            </div>
+            <h3 className="font-serif text-lg text-[#F7F4EE]">
+              AEON MEDIA Heraldic Crest (Tiger & Eagle)
+            </h3>
+            <p className="text-xs text-[#F7F4EE]/65 leading-relaxed">
+              Official high-resolution vector/raster emblem applied across all public pages, headers, footers, monographs, and client correspondence decks.
+            </p>
+            <div className="text-[11px] font-mono text-[#B6A17E] pt-1">
+              Asset Path: /assets/aistudio/IMG_20261003_095753_7e6246d0.png
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-1.5">
             <label className="block text-xs uppercase tracking-wider font-sans font-medium text-[#22221F]">

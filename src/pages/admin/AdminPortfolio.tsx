@@ -108,15 +108,18 @@ export const AdminPortfolio: React.FC<AdminPortfolioProps> = ({
     }
   };
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete portfolio monograph '${title}'?`)) return;
+  const [itemToDelete, setItemToDelete] = useState<PortfolioItem | null>(null);
+
+  const confirmDeletePortfolio = async () => {
+    if (!itemToDelete) return;
 
     setLoading(true);
     try {
-      await api.deletePortfolioItem(id);
-      const updatedList = portfolio.filter((p) => p.id !== id);
+      await api.deletePortfolioItem(itemToDelete.id);
+      const updatedList = portfolio.filter((p) => p.id !== itemToDelete.id);
       onPortfolioUpdated(updatedList);
-      setSuccess(`Monograph '${title}' deleted.`);
+      setSuccess(`Monograph '${itemToDelete.title}' deleted.`);
+      setItemToDelete(null);
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.message || 'Delete failed.');
@@ -441,8 +444,9 @@ export const AdminPortfolio: React.FC<AdminPortfolioProps> = ({
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(item.id, item.title)}
-                  className="p-2 text-red-600 hover:text-red-800 border border-red-200"
+                  type="button"
+                  onClick={() => setItemToDelete(item)}
+                  className="p-2 text-red-600 hover:text-red-800 border border-red-200 cursor-pointer"
                   title="Delete monograph"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -452,6 +456,35 @@ export const AdminPortfolio: React.FC<AdminPortfolioProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {itemToDelete && (
+        <div className="fixed inset-0 z-50 bg-[#22221F]/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#22221F]/20 p-6 max-w-md w-full space-y-4">
+            <h3 className="text-lg font-serif text-[#22221F]">Confirm Monograph Deletion</h3>
+            <p className="text-xs font-sans text-[#22221F]/70">
+              Are you sure you want to delete <strong>{itemToDelete.title}</strong>? This study will be permanently removed from the archive.
+            </p>
+            <div className="flex justify-end gap-3 pt-2 border-t border-[#22221F]/10">
+              <button
+                type="button"
+                onClick={() => setItemToDelete(null)}
+                className="px-4 py-2 text-xs font-sans text-[#22221F]/70 hover:text-[#22221F]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={confirmDeletePortfolio}
+                className="px-4 py-2 text-xs font-sans uppercase font-semibold text-white bg-red-700 hover:bg-red-800 disabled:opacity-50"
+              >
+                {loading ? 'Deleting...' : 'Delete Monograph'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

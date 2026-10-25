@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, CheckCircle2, AlertCircle, Trash2, Loader2, MessageSquare, ExternalLink, Inbox, Building, Briefcase, Calendar, Tag, RefreshCw } from 'lucide-react';
+import { 
+  Mail, 
+  CheckCircle2, 
+  AlertCircle, 
+  Trash2, 
+  Loader2, 
+  MessageSquare, 
+  ExternalLink, 
+  Inbox, 
+  Building, 
+  Briefcase, 
+  Calendar, 
+  Tag, 
+  RefreshCw,
+  X,
+  AlertTriangle
+} from 'lucide-react';
 import { api } from '../../api/client.ts';
 import { Inquiry } from '../../types/index.ts';
 
@@ -24,6 +40,10 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // In-UI Confirmation state (replaces fragile window.confirm)
+  const [inquiryToDelete, setInquiryToDelete] = useState<Inquiry | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
   // Keep active inquiry synced
   const activeInquiry = inquiries.find((i) => i.id === activeInquiryId) || inquiries[0] || null;
 
@@ -42,10 +62,11 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    setError(null);
     try {
       const refreshed = await api.getInquiries();
       onInquiriesUpdated(refreshed);
-      setSuccess('Inquiries refreshed.');
+      setSuccess('Inquiries list refreshed from database.');
       setTimeout(() => setSuccess(null), 2500);
     } catch (err: any) {
       setError(err.message || 'Failed to refresh inquiries.');
@@ -92,26 +113,50 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Permanently remove inquiry record from ${name}?`)) return;
-    setLoading(true);
+  // Open confirmation modal
+  const promptDelete = (inquiry: Inquiry, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     setError(null);
+    setInquiryToDelete(inquiry);
+  };
+
+  // Execute confirmed deletion
+  const confirmExecuteDelete = async () => {
+    if (!inquiryToDelete || isDeleting) return;
+
+    setIsDeleting(true);
+    setError(null);
+
+    const targetId = inquiryToDelete.id;
+    const targetName = inquiryToDelete.name;
+
     try {
-      await api.deleteInquiry(id);
-      const updatedList = inquiries.filter((i) => i.id !== id);
+      await api.deleteInquiry(targetId);
+
+      // Successfully deleted from database: remove from client state
+      const updatedList = inquiries.filter((i) => i.id !== targetId);
       onInquiriesUpdated(updatedList);
-      setActiveInquiryId(updatedList[0]?.id || null);
-      setSuccess('Inquiry deleted from database.');
-      setTimeout(() => setSuccess(null), 3000);
+
+      // If the active inquiry was the one deleted, switch to the first remaining
+      if (activeInquiryId === targetId) {
+        setActiveInquiryId(updatedList[0]?.id || null);
+      }
+
+      setSuccess(`Inquiry record for "${targetName}" permanently removed.`);
+      setInquiryToDelete(null);
+      setTimeout(() => setSuccess(null), 3500);
     } catch (err: any) {
-      setError(err.message || 'Failed to delete inquiry.');
+      // Deletion failed: keep inquiry visible and display error
+      setError(err.message || 'Failed to delete inquiry from database.');
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -126,7 +171,7 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-sans text-[#22221F] bg-white border border-[#22221F]/15 hover:bg-[#F7F4EE] transition-colors self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-sans text-[#22221F] bg-white border border-[#22221F]/15 hover:bg-[#F7F4EE] transition-colors self-start sm:self-auto cursor-pointer"
           title="Reload latest records from database"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-[#B6A17E] ${refreshing ? 'animate-spin' : ''}`} />
@@ -135,14 +180,14 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
       </div>
 
       {success && (
-        <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs sm:text-sm flex items-center gap-2.5">
+        <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs sm:text-sm flex items-center gap-2.5 animate-in fade-in duration-200">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{success}</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-300 text-red-900 text-xs sm:text-sm flex items-center gap-2.5">
+        <div className="p-4 bg-red-50 border border-red-300 text-red-900 text-xs sm:text-sm flex items-center gap-2.5 animate-in fade-in duration-200">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{error}</span>
         </div>
@@ -154,7 +199,7 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
           <button
             key={st}
             onClick={() => setFilter(st)}
-            className={`px-3.5 py-1.5 text-xs font-sans uppercase tracking-wider font-medium transition-colors ${
+            className={`px-3.5 py-1.5 text-xs font-sans uppercase tracking-wider font-medium transition-colors cursor-pointer ${
               filter === st
                 ? 'bg-[#22221F] text-[#F7F4EE]'
                 : 'bg-white text-[#22221F]/70 hover:text-[#22221F] border border-[#22221F]/10'
@@ -197,7 +242,7 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
                   <div
                     key={inq.id}
                     onClick={() => handleSelectInquiry(inq)}
-                    className={`p-5 cursor-pointer transition-colors space-y-2.5 ${
+                    className={`p-5 cursor-pointer transition-colors space-y-2.5 relative group ${
                       isSelected
                         ? 'bg-[#F7F4EE] border-l-4 border-l-[#B6A17E]'
                         : 'hover:bg-[#F7F4EE]/40'
@@ -207,19 +252,31 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
                       <span className="font-serif font-medium text-base text-[#22221F]">
                         {inq.name}
                       </span>
-                      <span
-                        className={`text-[10px] uppercase tracking-wider px-2.5 py-0.5 font-sans font-medium ${
-                          inq.status === 'new'
-                            ? 'bg-amber-100 text-amber-900 font-semibold'
-                            : inq.status === 'in_review'
-                            ? 'bg-blue-100 text-blue-900'
-                            : inq.status === 'responded'
-                            ? 'bg-emerald-100 text-emerald-900'
-                            : 'bg-stone-200 text-stone-700'
-                        }`}
-                      >
-                        {inq.status.replace('_', ' ')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-[10px] uppercase tracking-wider px-2.5 py-0.5 font-sans font-medium ${
+                            inq.status === 'new'
+                              ? 'bg-amber-100 text-amber-900 font-semibold'
+                              : inq.status === 'in_review'
+                              ? 'bg-blue-100 text-blue-900'
+                              : inq.status === 'responded'
+                              ? 'bg-emerald-100 text-emerald-900'
+                              : 'bg-stone-200 text-stone-700'
+                          }`}
+                        >
+                          {inq.status.replace('_', ' ')}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={(e) => promptDelete(inq, e)}
+                          className="opacity-60 hover:opacity-100 p-1 text-red-600 hover:text-red-800 transition-opacity"
+                          title="Delete this inquiry"
+                          aria-label={`Delete inquiry from ${inq.name}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="text-xs font-sans text-[#22221F]/80 flex items-center gap-2">
@@ -275,11 +332,13 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
                     </a>
 
                     <button
-                      onClick={() => handleDelete(activeInquiry.id, activeInquiry.name)}
-                      className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-200 transition-colors"
+                      type="button"
+                      onClick={() => promptDelete(activeInquiry)}
+                      className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-200 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-sans"
                       title="Delete inquiry record"
                     >
                       <Trash2 className="w-4 h-4" />
+                      <span className="hidden sm:inline">Delete</span>
                     </button>
                   </div>
                 </div>
@@ -301,7 +360,7 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
                         type="button"
                         disabled={loading}
                         onClick={() => handleStatusChange(st)}
-                        className={`px-3 py-1.5 text-xs font-sans uppercase tracking-wider transition-colors ${
+                        className={`px-3 py-1.5 text-xs font-sans uppercase tracking-wider transition-colors cursor-pointer ${
                           activeInquiry.status === st
                             ? 'bg-[#22221F] text-[#F7F4EE] font-semibold ring-2 ring-[#B6A17E]'
                             : 'bg-white text-[#22221F]/70 hover:text-[#22221F] border border-[#22221F]/15'
@@ -397,7 +456,7 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
                       type="button"
                       disabled={loading}
                       onClick={handleSaveNotes}
-                      className="px-5 py-2 text-xs font-sans uppercase tracking-wider font-semibold text-[#F7F4EE] bg-[#22221F] hover:bg-[#343430] transition-colors disabled:opacity-50"
+                      className="px-5 py-2 text-xs font-sans uppercase tracking-wider font-semibold text-[#F7F4EE] bg-[#22221F] hover:bg-[#343430] transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       {loading ? 'Saving Notes...' : 'Save Private Notes'}
                     </button>
@@ -409,6 +468,100 @@ export const AdminInquiries: React.FC<AdminInquiriesProps> = ({
                 Select an inquiry from the list to review details.
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Luxury In-DOM Confirmation Modal for Safe Deletion */}
+      {inquiryToDelete && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-dialog-title"
+          className="fixed inset-0 z-50 overflow-y-auto bg-[#22221F]/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+        >
+          <div 
+            className="fixed inset-0" 
+            onClick={() => { if (!isDeleting) setInquiryToDelete(null); }} 
+            aria-hidden="true" 
+          />
+
+          <div className="relative w-full max-w-lg bg-white border border-[#22221F]/20 shadow-2xl p-6 sm:p-8 space-y-6 z-10">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3 text-red-600">
+                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center border border-red-200">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 id="delete-dialog-title" className="text-lg font-serif text-[#22221F]">
+                    Permanently Delete Inquiry?
+                  </h3>
+                  <div className="text-xs font-sans text-[#22221F]/50">
+                    This action will immediately remove the record from persistent storage.
+                  </div>
+                </div>
+              </div>
+
+              {!isDeleting && (
+                <button
+                  type="button"
+                  onClick={() => setInquiryToDelete(null)}
+                  className="p-1.5 text-[#22221F]/40 hover:text-[#22221F] cursor-pointer"
+                  aria-label="Cancel"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+
+            <div className="p-4 bg-[#F7F4EE] border border-[#22221F]/10 space-y-2 text-xs font-sans">
+              <div>
+                <span className="text-[#22221F]/50 block">Contact Name</span>
+                <strong className="text-sm font-serif text-[#22221F]">{inquiryToDelete.name}</strong>
+              </div>
+              <div>
+                <span className="text-[#22221F]/50 block">Company / Property</span>
+                <span className="text-[#22221F] font-medium">{inquiryToDelete.company}</span>
+              </div>
+              <div>
+                <span className="text-[#22221F]/50 block">Requested Service</span>
+                <span className="text-[#22221F]">{inquiryToDelete.service}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#22221F]/70 font-sans leading-relaxed">
+              Are you certain you wish to delete this inquiry? Once removed, the brief, contact history, and associated staff notes cannot be recovered.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#22221F]/10">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setInquiryToDelete(null)}
+                className="px-4 py-2.5 text-xs font-sans uppercase tracking-wider text-[#22221F]/70 hover:text-[#22221F] hover:bg-[#F7F4EE] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={confirmExecuteDelete}
+                className="px-5 py-2.5 text-xs font-sans uppercase tracking-wider font-semibold text-white bg-red-700 hover:bg-red-800 active:scale-[0.99] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Removing from Database...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

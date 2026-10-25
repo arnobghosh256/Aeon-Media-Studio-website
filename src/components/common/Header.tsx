@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 
+import { BrandLogo } from './BrandLogo.tsx';
+
 interface HeaderProps {
   currentPath: string;
   onNavigate: (path: string) => void;
@@ -36,19 +38,13 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
       <header
         className={`sticky top-0 z-40 w-full transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#F7F4EE]/95 backdrop-blur-md border-b border-[#22221F]/8 py-3.5 shadow-[0_4px_24px_rgba(34,34,31,0.03)]'
-            : 'bg-[#F7F4EE] border-b border-[#22221F]/5 py-5'
+            ? 'bg-[#F7F4EE]/95 backdrop-blur-md border-b border-[#22221F]/8 py-3 shadow-[0_4px_24px_rgba(34,34,31,0.03)]'
+            : 'bg-[#F7F4EE] border-b border-[#22221F]/5 py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 flex items-center justify-between gap-8">
-          {/* Zone 1: Brand Wordmark (Single text element in editorial face) */}
-          <button
-            onClick={() => handleLinkClick('/')}
-            className="text-xl sm:text-2xl font-serif font-medium tracking-tight text-[#22221F] hover:text-[#B6A17E] transition-colors whitespace-nowrap shrink-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B6A17E]"
-            aria-label="AEON MEDIA — Return to homepage"
-          >
-            AEON MEDIA
-          </button>
+          {/* Zone 1: Luxury Brand Emblem & Wordmark */}
+          <BrandLogo variant="header" onClick={() => handleLinkClick('/')} />
 
           {/* Zone 2: 5 clean single-line text navigation links */}
           <nav
@@ -105,6 +101,10 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 top-[60px] z-30 bg-[#F7F4EE] flex flex-col md:hidden border-t border-[#22221F]/10 px-8 py-10 animate-in fade-in duration-200">
+          <div className="mb-8 pb-6 border-b border-[#22221F]/10 flex items-center justify-between">
+            <BrandLogo variant="header" onClick={() => handleLinkClick('/')} />
+          </div>
+
           <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold mb-6">
             Navigation
           </div>

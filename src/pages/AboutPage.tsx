@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 import { PageContent } from '../types/index.ts';
+import { BrandLogo, LOGO_ASSET_PATH } from '../components/common/BrandLogo.tsx';
 
 interface AboutPageProps {
   pageContent?: PageContent;
@@ -16,8 +17,17 @@ export const AboutPage: React.FC<AboutPageProps> = ({ pageContent, onNavigate })
       {/* Header Banner */}
       <section className="pt-12 pb-16 lg:pt-16 lg:pb-24 border-b border-[#22221F]/10 bg-[#F7F4EE]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 space-y-6">
-          <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
-            About the Studio
+          <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
+            <div className="w-6 h-6 rounded-full overflow-hidden border border-[#B6A17E]/60 ring-1 ring-[#22221F]/10 bg-[#161614] shrink-0">
+              <img
+                src={LOGO_ASSET_PATH}
+                alt="AEON MEDIA Crest"
+                className="w-full h-full object-cover object-top scale-130"
+              />
+            </div>
+            <span>About the Studio</span>
+            <span aria-hidden="true">·</span>
+            <span>Est. Monaco · London · Kyoto</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-[#22221F] tracking-tight max-w-4xl text-balance">
             {heroHeading}
@@ -70,6 +80,45 @@ export const AboutPage: React.FC<AboutPageProps> = ({ pageContent, onNavigate })
             </div>
             <div className="text-xs font-serif italic text-[#22221F]/60 text-center">
               The studio archive: material research, fountain ink, and raw limestone.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The Insignia of AEON MEDIA: Tiger & Eagle */}
+      <section className="py-20 lg:py-24 bg-[#22221F] text-[#F7F4EE] border-b border-[#343430]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          <div className="lg:col-span-5 flex justify-center">
+            <div className="relative w-64 sm:w-72 aspect-square rounded-2xl overflow-hidden border border-[#B6A17E]/40 shadow-2xl bg-[#141412] p-2 ring-1 ring-[#F7F4EE]/10 group">
+              <img
+                src={LOGO_ASSET_PATH}
+                alt="AEON MEDIA Insignia & Crest"
+                className="w-full h-full object-cover object-top scale-110 group-hover:scale-115 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 ring-1 ring-inset ring-[#B6A17E]/30 rounded-2xl pointer-events-none" />
+            </div>
+          </div>
+          <div className="lg:col-span-7 space-y-6">
+            <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
+              The Heraldic Mark
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-serif text-[#F7F4EE] tracking-tight">
+              The Tiger, The Eagle, and The Spear.
+            </h2>
+            <p className="text-base font-serif italic text-[#B6A17E]">
+              "Power in the grounded soil; clarity in the unobstructed sky."
+            </p>
+            <div className="space-y-4 text-sm font-sans text-[#F7F4EE]/75 leading-relaxed">
+              <p>
+                The insignia of AEON MEDIA reflects the dual imperative of luxury hospitality communication.
+                The <strong className="text-[#F7F4EE] font-medium">Tiger</strong> represents physical presence, earthly substance, terroir, and the indisputable weight of architectural stone and timber. It grounds every narrative in palpable sensory truth.
+              </p>
+              <p>
+                The <strong className="text-[#F7F4EE] font-medium">Eagle</strong> represents elevation, perspective, and the far horizon—the visionary mythos that transforms an exceptional property into an enduring global destination.
+              </p>
+              <p>
+                United by the diamond spear of editorial precision, the emblem serves as our seal of honor: ensuring that every word we write respects both the craftsmanship of the ground and the ambition of the sky.
+              </p>
             </div>
           </div>
         </div>

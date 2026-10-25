@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowUpRight, Mail, Instagram, MapPin, Clock } from 'lucide-react';
 import { InquiryForm } from '../components/contact/InquiryForm.tsx';
 import { PageContent, Service } from '../types/index.ts';
+import { BrandLogo, LOGO_ASSET_PATH } from '../components/common/BrandLogo.tsx';
 
 interface ContactPageProps {
   pageContent?: PageContent;
@@ -24,8 +25,17 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       {/* Header Banner */}
       <section className="pt-12 pb-16 lg:pt-16 lg:pb-24 border-b border-[#22221F]/10 bg-[#F7F4EE]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 space-y-6">
-          <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
-            Inquiries & Commissions
+          <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
+            <div className="w-6 h-6 rounded-full overflow-hidden border border-[#B6A17E]/60 ring-1 ring-[#22221F]/10 bg-[#161614] shrink-0">
+              <img
+                src={LOGO_ASSET_PATH}
+                alt="AEON MEDIA Insignia"
+                className="w-full h-full object-cover object-top scale-130"
+              />
+            </div>
+            <span>Inquiries & Commissions</span>
+            <span aria-hidden="true">·</span>
+            <span>Direct Studio Desk</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-[#22221F] tracking-tight max-w-4xl text-balance">
             {heroHeading}
@@ -52,6 +62,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({
           <div className="lg:col-span-4 space-y-8">
             {/* Direct Studio Desk */}
             <div className="p-8 bg-white border border-[#22221F]/10 space-y-6">
+              <div className="pb-4 border-b border-[#22221F]/8">
+                <BrandLogo variant="header" showSubtitle={true} />
+              </div>
+
               <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
                 Direct Correspondence
               </div>

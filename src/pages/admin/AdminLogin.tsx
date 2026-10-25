@@ -37,12 +37,21 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onReturnToSit
   return (
     <div className="min-h-screen bg-[#22221F] text-[#F7F4EE] flex flex-col justify-center items-center px-6 py-12">
       <div className="w-full max-w-md space-y-8">
-        {/* Brand Lockup */}
-        <div className="text-center space-y-2">
-          <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
+        {/* Brand Lockup with Official Gold Insignia */}
+        <div className="text-center space-y-3">
+          <div className="flex justify-center">
+            <div className="relative w-20 h-20 rounded-full overflow-hidden border border-[#B6A17E]/50 ring-2 ring-[#B6A17E]/20 bg-[#161614] shadow-2xl p-0.5">
+              <img
+                src="/assets/aistudio/IMG_20261003_095753_7e6246d0.png"
+                alt="AEON MEDIA Crest"
+                className="w-full h-full object-cover object-top scale-125"
+              />
+            </div>
+          </div>
+          <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold pt-1">
             Central Studio Management
           </div>
-          <h1 className="text-3xl sm:text-4xl font-serif text-[#F7F4EE]">
+          <h1 className="text-3xl sm:text-4xl font-serif text-[#F7F4EE] tracking-[0.1em] uppercase">
             AEON MEDIA
           </h1>
           <p className="text-xs sm:text-sm font-sans text-[#F7F4EE]/60">

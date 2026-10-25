@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, ArrowUpRight, Compass, Feather, Sparkles, ShieldCheck } from 'lucide-react';
 import { PageContent, PortfolioItem, Service } from '../types/index.ts';
+import { BrandLogo, LOGO_ASSET_PATH } from '../components/common/BrandLogo.tsx';
 
 interface HomePageProps {
   pageContent?: PageContent;
@@ -43,11 +44,20 @@ export const HomePage: React.FC<HomePageProps> = ({
           ======================================================== */}
       <section className="relative w-full pt-8 pb-16 lg:pt-12 lg:pb-24 border-b border-[#22221F]/10">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          {/* Typographic Kicker */}
+          {/* Typographic & Heraldic Kicker */}
           <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold mb-6">
+            <div className="w-6 h-6 rounded-full overflow-hidden border border-[#B6A17E]/60 ring-1 ring-[#22221F]/10 bg-[#161614] shrink-0">
+              <img
+                src={LOGO_ASSET_PATH}
+                alt="AEON MEDIA Insignia"
+                className="w-full h-full object-cover object-top scale-130"
+              />
+            </div>
             <span>AEON MEDIA</span>
             <span aria-hidden="true">·</span>
             <span>Hospitality Brand Storytelling Studio</span>
+            <span className="hidden sm:inline" aria-hidden="true">·</span>
+            <span className="hidden sm:inline text-[#22221F]/60">Atelier de Haute Rédaction</span>
           </div>
 
           {/* Hero Headline & Subtitle */}
@@ -121,7 +131,10 @@ export const HomePage: React.FC<HomePageProps> = ({
           C. PHILOSOPHY SECTION (Aman / Rosewood inspired restraint)
           ======================================================== */}
       <section className="py-20 lg:py-28 bg-[#F7F4EE] border-b border-[#22221F]/10">
-        <div className="max-w-5xl mx-auto px-6 sm:px-8 text-center space-y-8">
+        <div className="max-w-5xl mx-auto px-6 sm:px-8 text-center space-y-6">
+          {/* Centered Heraldic Studio Seal */}
+          <BrandLogo variant="seal" className="mb-2" />
+
           <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
             Studio Philosophy
           </div>
@@ -130,7 +143,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             {philosophy.heading}
           </h2>
 
-          <div className="w-12 h-[1px] bg-[#B6A17E] mx-auto my-6" aria-hidden="true" />
+          <div className="w-12 h-[1px] bg-[#B6A17E] mx-auto my-4" aria-hidden="true" />
 
           <p className="text-lg sm:text-xl font-serif italic text-[#22221F]/90 leading-relaxed max-w-3xl mx-auto">
             {philosophy.leadText}
@@ -315,7 +328,27 @@ export const HomePage: React.FC<HomePageProps> = ({
           G. CLOSING CTA (Every Exceptional Property Has a Story)
           ======================================================== */}
       <section className="py-24 lg:py-32 bg-[#22221F] text-[#F7F4EE] relative overflow-hidden">
+        {/* Subtle Ambient Background Watermark */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/3 opacity-5 pointer-events-none select-none w-[500px] h-[500px]">
+          <img
+            src={LOGO_ASSET_PATH}
+            alt=""
+            className="w-full h-full object-cover filter blur-[1px]"
+          />
+        </div>
+
         <div className="max-w-4xl mx-auto px-6 sm:px-8 text-center space-y-8 relative z-10">
+          {/* Official Gold Crest Showcase */}
+          <div className="flex justify-center mb-2">
+            <div className="relative w-28 sm:w-32 aspect-square rounded-xl overflow-hidden border border-[#B6A17E]/40 shadow-2xl bg-[#141412] p-1 ring-1 ring-[#F7F4EE]/10 group hover:border-[#B6A17E] transition-all duration-300">
+              <img
+                src={LOGO_ASSET_PATH}
+                alt="AEON MEDIA Official Crest"
+                className="w-full h-full object-cover object-top scale-115 group-hover:scale-120 transition-transform duration-500"
+              />
+            </div>
+          </div>
+
           <div className="text-xs uppercase tracking-widest text-[#B6A17E] font-sans font-semibold">
             Inquiries & Collaborations
           </div>

@@ -115,15 +115,20 @@ function initDatabase(): DatabaseSchema {
 
 let db: DatabaseSchema = initDatabase();
 
-function saveDatabase(dataToSave: DatabaseSchema) {
+function saveDatabase(dataToSave: DatabaseSchema): boolean {
   try {
     const tempFile = `${DB_FILE}.tmp`;
     fs.writeFileSync(tempFile, JSON.stringify(dataToSave, null, 2), 'utf-8');
     fs.renameSync(tempFile, DB_FILE);
+    return true;
   } catch (err) {
     console.error('Failed to write database file:', err);
+    return false;
   }
 }
+
+// In-memory rate limiter: IP -> timestamps[] (10 min sliding window)
+const submissionRateLimit = new Map<string, number[]>();
 
 // Middleware
 app.use(express.json({ limit: '10mb' }));
@@ -266,16 +271,30 @@ app.post('/api/auth/change-password', requireAdmin, (req: Request, res: Response
   res.json({ success: true, message: 'Password updated successfully.' });
 });
 
+// Helper: Strip HTML tags to sanitize input
+function sanitizeText(input: string): string {
+  return input.replace(/<[^>]*>?/gm, '').trim();
+}
+
 // 2. Inquiries API
 app.post('/api/inquiries', (req: Request, res: Response) => {
   const { name, email, company, role, service, details } = req.body;
+
+  // Rate Limiting: max 10 submissions per 10 minutes per IP
+  const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const timestamps = (submissionRateLimit.get(clientIp) || []).filter((t) => now - t < 10 * 60 * 1000);
+  if (timestamps.length >= 10) {
+    res.status(429).json({ success: false, error: 'Too many submissions. Please wait a few minutes before submitting again.' });
+    return;
+  }
 
   // Validation
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
     res.status(400).json({ success: false, error: 'Please provide your full name.' });
     return;
   }
-  if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
     res.status(400).json({ success: false, error: 'Please provide a valid business email address.' });
     return;
   }
@@ -292,22 +311,44 @@ app.post('/api/inquiries', (req: Request, res: Response) => {
     return;
   }
 
-  // Sanitize
+  // Duplicate Submission Prevention: same email & company within 30 seconds
+  const isDuplicate = db.inquiries.some((item) => {
+    const isSameEmail = item.email.toLowerCase() === email.trim().toLowerCase();
+    const isSameCompany = item.company.toLowerCase() === company.trim().toLowerCase();
+    const isRecent = now - new Date(item.createdAt).getTime() < 30 * 1000;
+    return isSameEmail && isSameCompany && isRecent;
+  });
+
+  if (isDuplicate) {
+    res.status(429).json({ success: false, error: 'An identical inquiry was just received. Please do not submit duplicate inquiries.' });
+    return;
+  }
+
+  // Update rate limiter
+  timestamps.push(now);
+  submissionRateLimit.set(clientIp, timestamps);
+
+  // Sanitize and create clean record
   const cleanInquiry: Inquiry = {
     id: `inq-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`,
-    name: name.trim().slice(0, 100),
-    email: email.trim().toLowerCase().slice(0, 100),
-    company: company.trim().slice(0, 150),
-    role: role ? String(role).trim().slice(0, 100) : undefined,
-    service: service.trim().slice(0, 100),
-    details: details.trim().slice(0, 5000),
+    name: sanitizeText(name).slice(0, 100),
+    email: sanitizeText(email).toLowerCase().slice(0, 100),
+    company: sanitizeText(company).slice(0, 150),
+    role: role ? sanitizeText(String(role)).slice(0, 100) : undefined,
+    service: sanitizeText(service).slice(0, 100),
+    details: sanitizeText(details).slice(0, 5000),
     status: 'new',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
   db.inquiries.unshift(cleanInquiry);
-  saveDatabase(db);
+  const writeSuccess = saveDatabase(db);
+  if (!writeSuccess) {
+    db.inquiries.shift(); // Revert in-memory
+    res.status(500).json({ success: false, error: 'Failed to record inquiry to storage. Please email the studio directly.' });
+    return;
+  }
 
   res.status(201).json({
     success: true,
@@ -324,7 +365,8 @@ app.patch('/api/inquiries/:id', requireAdmin, (req: Request, res: Response) => {
   const { id } = req.params;
   const { status, notes } = req.body;
 
-  const inquiry = db.inquiries.find((item) => item.id === id);
+  const targetId = decodeURIComponent(id).trim();
+  const inquiry = db.inquiries.find((item) => item.id === targetId || item.id === id);
   if (!inquiry) {
     res.status(404).json({ success: false, error: 'Inquiry not found.' });
     return;
@@ -334,25 +376,46 @@ app.patch('/api/inquiries/:id', requireAdmin, (req: Request, res: Response) => {
     inquiry.status = status;
   }
   if (notes !== undefined) {
-    inquiry.notes = String(notes);
+    inquiry.notes = sanitizeText(String(notes));
   }
   inquiry.updatedAt = new Date().toISOString();
 
-  saveDatabase(db);
+  const writeSuccess = saveDatabase(db);
+  if (!writeSuccess) {
+    res.status(500).json({ success: false, error: 'Failed to save updates to database.' });
+    return;
+  }
   res.json({ success: true, data: inquiry });
 });
 
 app.delete('/api/inquiries/:id', requireAdmin, (req: Request, res: Response) => {
   const { id } = req.params;
-  const index = db.inquiries.findIndex((item) => item.id === id);
-  if (index === -1) {
-    res.status(404).json({ success: false, error: 'Inquiry not found.' });
+  if (!id || typeof id !== 'string') {
+    res.status(400).json({ success: false, error: 'Inquiry ID parameter is required.' });
     return;
   }
 
-  db.inquiries.splice(index, 1);
-  saveDatabase(db);
-  res.json({ success: true, message: 'Inquiry removed.' });
+  const targetId = decodeURIComponent(id).trim();
+  const index = db.inquiries.findIndex((item) => item.id === targetId || item.id === id);
+  if (index === -1) {
+    res.status(404).json({ success: false, error: 'Inquiry not found or already deleted.' });
+    return;
+  }
+
+  const removed = db.inquiries.splice(index, 1)[0];
+  const writeSuccess = saveDatabase(db);
+  if (!writeSuccess) {
+    // Revert in-memory state if file write fails
+    db.inquiries.splice(index, 0, removed);
+    res.status(500).json({ success: false, error: 'Database write failed. Inquiry was not deleted.' });
+    return;
+  }
+
+  res.json({ 
+    success: true, 
+    message: 'Inquiry permanently removed.', 
+    deletedId: removed.id 
+  });
 });
 
 // 3. Portfolio API
