@@ -240,21 +240,7 @@ export default function App() {
         )}
 
         {currentPath === '/contact' && (
-          <ContactPage
-            pageContent={pages.contact}
-            services={services}
-            preselectedService={preselectedService}
-            onSuccess={async () => {
-              if (adminUser) {
-                try {
-                  const refreshed = await api.getInquiries();
-                  setInquiries(refreshed);
-                } catch (e) {
-                  console.error(e);
-                }
-              }
-            }}
-          />
+          <ContactPage />
         )}
       </main>
 

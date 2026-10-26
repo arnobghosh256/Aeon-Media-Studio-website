@@ -9,8 +9,8 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onReturnToSite }) => {
-  const [email, setEmail] = useState('admin@aeonmedia.co');
-  const [password, setPassword] = useState('AeonLuxury2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,7 +79,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onReturnToSit
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-2.5 bg-[#1F1F1C] border border-[#3E3E38] text-sm text-[#F7F4EE] focus:outline-none focus:border-[#B6A17E] transition-colors"
-                placeholder="admin@aeonmedia.co"
+                placeholder="staff@aeonmedia.co"
               />
             </div>
 
@@ -116,30 +116,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onReturnToSit
               )}
             </button>
           </form>
-
-          {/* 1-Click Fill & Credentials Helper */}
-          <div className="pt-4 border-t border-[#3E3E38] text-[11px] font-sans text-[#F7F4EE]/60 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[#B6A17E] font-medium uppercase tracking-wider">
-                Default Credentials:
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('admin@aeonmedia.co');
-                  setPassword('AeonLuxury2026!');
-                  setError(null);
-                }}
-                className="text-xs text-[#B6A17E] hover:text-[#F7F4EE] underline decoration-[#B6A17E]/50"
-              >
-                Autofill
-              </button>
-            </div>
-            <div className="p-2.5 bg-[#1F1F1C] border border-[#3E3E38] space-y-1 font-mono text-[11px]">
-              <div>Email: <span className="text-[#F7F4EE]">admin@aeonmedia.co</span></div>
-              <div>Password: <span className="text-[#F7F4EE]">AeonLuxury2026!</span></div>
-            </div>
-          </div>
         </div>
 
         {/* Back Link */}
